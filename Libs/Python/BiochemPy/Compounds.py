@@ -34,7 +34,7 @@ class Compounds:
             if("cpd" not in line['MS ID']):
                 continue
 
-            if(line['Source'] not in sources_array):
+            if("All" not in sources_array and line['Source'] not in sources_array):
                 continue
 
             if(line['MS ID'] not in aliases_dict):
@@ -73,7 +73,7 @@ class Compounds:
 
         structures_dict = dict()
         if(len(db_array)==1 and db_array[0]=="ModelSEED"):
-            struct_file = "ModelSEED_Structures.txt"
+            struct_file = "Unique_ModelSEED_Structures.txt"
             struct_file = self.StructRoot+struct_file
             reader = DictReader(open(struct_file), dialect = "excel-tab", fieldnames = ['ID','Source','Aliases','Structure'])
             for line in reader:
