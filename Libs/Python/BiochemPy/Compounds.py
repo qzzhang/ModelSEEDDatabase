@@ -85,7 +85,7 @@ class Compounds:
 
         return names_dict
 
-    def loadStructures(self,sources_array=[],db_array=[]):
+    def loadStructures(self,sources_array=[],db_array=[],unique=True):
         if(len(sources_array)==0):
             sources_array=["SMILE","InChIKey","InChI"]
 
@@ -95,14 +95,30 @@ class Compounds:
         structures_dict = dict()
         if(len(db_array)==1 and db_array[0]=="ModelSEED"):
             struct_file = "Unique_ModelSEED_Structures.txt"
+            if(unique==False):
+                struct_file = "All_ModelSEED_Structures.txt"
+
             struct_file = self.StructRoot+struct_file
-            reader = DictReader(open(struct_file), dialect = "excel-tab", fieldnames = ['ID','Source','Aliases','Structure'])
+            reader = DictReader(open(struct_file), dialect = "excel-tab")
             for line in reader:
                 if(line['ID'] not in structures_dict):
                     structures_dict[line['ID']]={}
 
-                if(line['Source'] in sources_array):
-                    structures_dict[line['ID']][line['Source']]=line['Structure']
+                if(line['Type'] in sources_array):
+                    if(unique==True):
+                        structures_dict[line['ID']][line['Type']]=line['Structure']
+                    else:
+                        if(line['Type'] == 'InChI' and line['Modification'] == 'Original'):
+                            continue
+
+                        if(line['Type'] == 'SMILE' and line['Modification'] == 'Charged'):
+                            continue
+
+                        if(line['Type'] not in structures_dict[line['ID']]):
+                            structures_dict[line['ID']][line['Type']]=dict()
+                        if(line['Structure'] not in structures_dict[line['ID']][line['Type']]):
+                            structures_dict[line['ID']][line['Type']][line['Structure']]=dict()
+                        structures_dict[line['ID']][line['Type']][line['Structure']][line['Source']]=1
 
             return structures_dict
 
